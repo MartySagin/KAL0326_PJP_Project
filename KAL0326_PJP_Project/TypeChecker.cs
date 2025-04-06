@@ -17,7 +17,7 @@ public class TypeChecker : PLCBaseVisitor<string>
 
             if (symbolTable.ContainsKey(varName))
             {
-                Errors.Add($"Variable '{varName}' is already declared.");
+                Errors.Add($"[Line {id.Symbol.Line}, Pos {id.Symbol.Column}] Variable '{varName}' is already declared.");
             }
             else
             {
@@ -37,7 +37,7 @@ public class TypeChecker : PLCBaseVisitor<string>
 
         if (!symbolTable.TryGetValue(leftId, out string varType))
         {
-            Errors.Add($"Variable '{leftId}' is not declared.");
+            Errors.Add($"[Line {context.Start.Line}, Pos {context.Start.Column}] Variable '{leftId}' is not declared.");
             return null;
         }
 
@@ -50,7 +50,7 @@ public class TypeChecker : PLCBaseVisitor<string>
 
         if (varType != rightType)
         {
-            Errors.Add($"Cannot assign type '{rightType}' to variable '{leftId}' of type '{varType}'.");
+            Errors.Add($"[Line {context.Start.Line}, Pos {context.Start.Column}] Cannot assign type '{rightType}' to variable '{leftId}' of type '{varType}'.");
         }
 
         return varType;
@@ -67,7 +67,7 @@ public class TypeChecker : PLCBaseVisitor<string>
             string id = context.ID().GetText();
             if (!symbolTable.TryGetValue(id, out string type))
             {
-                Errors.Add($"Variable '{id}' is not declared.");
+                Errors.Add($"[Line {context.Start.Line}, Pos {context.Start.Column}] Variable '{id}' is not declared.");
                 return "error";
             }
             return type;
@@ -92,7 +92,7 @@ public class TypeChecker : PLCBaseVisitor<string>
         if ((leftType == "int" || leftType == "float") && (rightType == "int" || rightType == "float"))
             return (leftType == "float" || rightType == "float") ? "float" : "int";
 
-        Errors.Add($"Operator '{op}' not supported for types '{leftType}' and '{rightType}'.");
+        Errors.Add($"[Line {context.Start.Line}, Pos {context.Start.Column}] Operator '{op}' not supported for types '{leftType}' and '{rightType}'.");
         return "error";
     }
 
@@ -109,13 +109,13 @@ public class TypeChecker : PLCBaseVisitor<string>
         {
             if (op == "%" && (left != "int" || right != "int"))
             {
-                Errors.Add("Modulo '%' is only valid for integers.");
+                Errors.Add($"[Line {context.Start.Line}, Pos {context.Start.Column}] Modulo '%' is only valid for integers.");
                 return "error";
             }
             return (left == "float" || right == "float") ? "float" : "int";
         }
 
-        Errors.Add($"Operator '{op}' not supported for types '{left}' and '{right}'.");
+        Errors.Add($"[Line {context.Start.Line}, Pos {context.Start.Column}] Operator '{op}' not supported for types '{left}' and '{right}'.");
         return "error";
     }
 
@@ -130,7 +130,7 @@ public class TypeChecker : PLCBaseVisitor<string>
         if ((left == "int" || left == "float") && (right == "int" || right == "float"))
             return "bool";
 
-        Errors.Add($"Comparison not valid for types '{left}' and '{right}'.");
+        Errors.Add($"[Line {context.Start.Line}, Pos {context.Start.Column}] Comparison not valid for types '{left}' and '{right}'.");
         return "error";
     }
 
@@ -145,7 +145,7 @@ public class TypeChecker : PLCBaseVisitor<string>
         if (left == right && (left == "int" || left == "float" || left == "string"))
             return "bool";
 
-        Errors.Add($"Equality operator not valid between '{left}' and '{right}'.");
+        Errors.Add($"[Line {context.Start.Line}, Pos {context.Start.Column}] Equality operator not valid between '{left}' and '{right}'.");
         return "error";
     }
 
@@ -160,7 +160,7 @@ public class TypeChecker : PLCBaseVisitor<string>
         if (left == "bool" && right == "bool")
             return "bool";
 
-        Errors.Add("Logical AND requires boolean operands.");
+        Errors.Add($"[Line {context.Start.Line}, Pos {context.Start.Column}] Logical AND requires boolean operands.");
         return "error";
     }
 
@@ -175,7 +175,7 @@ public class TypeChecker : PLCBaseVisitor<string>
         if (left == "bool" && right == "bool")
             return "bool";
 
-        Errors.Add("Logical OR requires boolean operands.");
+        Errors.Add($"[Line {context.Start.Line}, Pos {context.Start.Column}] Logical OR requires boolean operands.");
         return "error";
     }
 
@@ -193,7 +193,7 @@ public class TypeChecker : PLCBaseVisitor<string>
         if (op == "!" && operandType == "bool")
             return "bool";
 
-        Errors.Add($"Unary operator '{op}' not applicable to type '{operandType}'.");
+        Errors.Add($"[Line {context.Start.Line}, Pos {context.Start.Column}] Unary operator '{op}' not applicable to type '{operandType}'.");
         return "error";
     }
 
@@ -217,7 +217,7 @@ public class TypeChecker : PLCBaseVisitor<string>
         string condType = Visit(context.expression());
         if (condType != "bool")
         {
-            Errors.Add($"Condition in 'if' must be of type bool, got '{condType}'.");
+            Errors.Add($"[Line {context.Start.Line}, Pos {context.Start.Column}] Condition in 'if' must be of type bool, got '{condType}'.");
         }
 
         Visit(context.statement(0));
@@ -232,7 +232,7 @@ public class TypeChecker : PLCBaseVisitor<string>
         string condType = Visit(context.expression());
         if (condType != "bool")
         {
-            Errors.Add($"Condition in 'while' must be of type bool, got '{condType}'.");
+            Errors.Add($"[Line {context.Start.Line}, Pos {context.Start.Column}] Condition in 'while' must be of type bool, got '{condType}'.");
         }
 
         Visit(context.statement());

@@ -13,7 +13,8 @@ namespace KAL0326_PJP_Project
 
             if (string.IsNullOrWhiteSpace(inputPath) || !File.Exists(inputPath))
             {
-                Console.WriteLine("❌ Soubor neexistuje.");
+                Console.WriteLine("Soubor neexistuje.");
+
                 return;
             }
 
@@ -51,10 +52,12 @@ namespace KAL0326_PJP_Project
             if (typeChecker.Errors.Count > 0)
             {
                 Console.WriteLine("Nalezeny typové chyby:");
+
                 foreach (var err in typeChecker.Errors)
                 {
                     Console.WriteLine(err);
                 }
+
                 return;
             }
 
