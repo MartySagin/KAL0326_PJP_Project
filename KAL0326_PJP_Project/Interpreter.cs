@@ -461,13 +461,24 @@ public class Interpreter
                         {
                             vals[i] = stack.Pop();
                         }
-                        // teď je vypíšeme
+
                         for (int i = 0; i < n; i++)
                         {
-                            Console.Write(vals[i]);
+                            object value = vals[i];
+
+                            if (value is double d)
+                            {
+                                Console.Write(d.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture));
+                            }
+                            else
+                            {
+                                Console.Write(value);
+                            }
                         }
+
                         Console.WriteLine(); 
                     }
+
                     return false;
                 }
 

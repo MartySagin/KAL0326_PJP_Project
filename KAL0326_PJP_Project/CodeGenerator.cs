@@ -10,58 +10,46 @@ public class CodeGenerator : PLCBaseVisitor<string>
 
     private int labelCounter = -1;
 
-    /// <summary>
-    /// Metoda, kterou zavoláme po dokončení generování – zapíše instrukce do souboru.
-    /// </summary>
+
     public void WriteToFile(string path)
     {
         File.WriteAllLines(path, instructions);
     }
 
-    /// <summary>
-    /// Pomocná metoda pro přidání instrukce do seznamu.
-    /// </summary>
+
     private void Emit(string instruction)
     {
         instructions.Add(instruction);
     }
 
-    /// <summary>
-    /// Vygeneruje nové unikátní ID labelu a vrátí jej.
-    /// </summary>
+
     private int GetNewLabel()
     {
         return ++labelCounter;
     }
 
-    // ------------------------------------------------------------------------
-    // Program, blok
-    // ------------------------------------------------------------------------
 
     public override string VisitProgram(PLCParser.ProgramContext context)
     {
-        // Všechny vrcholové statementy zpracujeme sekvenčně.
+     
         foreach (var stmt in context.statement())
         {
             Visit(stmt);
         }
+
         return null;
     }
 
     public override string VisitBlock(PLCParser.BlockContext context)
     {
-        // Blok je sekvence příkazů obalená { }. Normálně jen projdeme příkazy uvnitř.
+        
         foreach (var stmt in context.statement())
         {
             Visit(stmt);
         }
+
         return null;
     }
-
-    // ------------------------------------------------------------------------
-    // Deklarace - součást "obdobnosti" k vzoru:
-    //  Každou proměnnou inicializujeme default hodnotou (0, 0.0, "", false).
-    // ------------------------------------------------------------------------
 
     public override string VisitDeclaration(PLCParser.DeclarationContext context)
     {
@@ -72,7 +60,6 @@ public class CodeGenerator : PLCBaseVisitor<string>
             string varName = id.GetText();
             symbolTable[varName] = type;
 
-            // Default hodnota: 0 pro int, 0.0 pro float, false pro bool, "" pro string
             string defaultPush = type switch
             {
                 "int" => "push I 0",
@@ -90,11 +77,6 @@ public class CodeGenerator : PLCBaseVisitor<string>
         return null;
     }
 
-    // ------------------------------------------------------------------------
-    // Přiřazení
-    //  Kromě standardní logiky (push expr -> save var),
-    //  ještě přidáme load var + pop, aby se to trochu podobně "ukazovalo" jako ve vzoru.
-    // ------------------------------------------------------------------------
 
     public override string VisitAssignment(PLCParser.AssignmentContext ctx)
     {
@@ -140,11 +122,6 @@ public class CodeGenerator : PLCBaseVisitor<string>
         }
     }
 
-
-
-    // ------------------------------------------------------------------------
-    // Statementy: read, write, if, while, ...
-    // ------------------------------------------------------------------------
 
     public override string VisitReadStatement(PLCParser.ReadStatementContext context)
     {
@@ -262,10 +239,6 @@ public class CodeGenerator : PLCBaseVisitor<string>
         return null;
     }
 
-
-    // ------------------------------------------------------------------------
-    // Výrazy
-    // ------------------------------------------------------------------------
 
     public override string VisitPrimary(PLCParser.PrimaryContext context)
     {
@@ -541,9 +514,6 @@ public class CodeGenerator : PLCBaseVisitor<string>
         return "error";
     }
 
-    /// <summary>
-    /// Pomocná funkce pro převod klíčového slova typu do jednopísmenné značky pro read/push atd.
-    /// </summary>
     private string TypeToCode(string type)
     {
         return type switch
@@ -552,7 +522,7 @@ public class CodeGenerator : PLCBaseVisitor<string>
             "float" => "F",
             "bool" => "B",
             "string" => "S",
-            _ => "?"  // neznámý
+            _ => "?"  
         };
     }
 }
