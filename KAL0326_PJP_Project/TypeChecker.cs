@@ -239,6 +239,29 @@ public class TypeChecker : PLCBaseVisitor<string>
         return null;
     }
 
+    public override string VisitForStatement(PLCParser.ForStatementContext context)
+    {
+        string type = context.TYPE().GetText();
+        string name = context.ID().GetText();
+
+        if (symbolTable.ContainsKey(name))
+            Errors.Add($"[Line {context.Start.Line}] Variable '{name}' already declared.");
+
+        symbolTable[name] = type;
+
+        string condType = Visit(context.expression(0));
+
+        if (condType != "bool")
+            Errors.Add($"[Line {context.Start.Line}] Condition in 'for' must be of type bool, got '{condType}'.");
+
+        Visit(context.expression(1));
+
+        Visit(context.statement());
+
+        return null;
+    }
+
+
     public override string VisitBlock(PLCParser.BlockContext context)
     {
         foreach (var stmt in context.statement())

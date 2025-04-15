@@ -11,6 +11,7 @@ TYPE      : 'int' | 'float' | 'bool' | 'string' ;
 IF        : 'if' ;
 ELSE      : 'else' ;
 WHILE     : 'while' ;
+FOR       : 'for' ;
 READ      : 'read' ;
 WRITE     : 'write' ;
 
@@ -55,6 +56,7 @@ statement
     | block
     | ifStatement
     | whileStatement
+    | forStatement
     | SEMI
     ;
 
@@ -78,6 +80,9 @@ ifStatement
 
 whileStatement
     : WHILE LPAREN expression RPAREN statement ;
+
+forStatement
+    : FOR LPAREN TYPE ID SEMI expression SEMI expression RPAREN statement ;
 
 expression
     : assignment ;

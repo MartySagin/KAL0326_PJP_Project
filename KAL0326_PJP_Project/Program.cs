@@ -14,24 +14,20 @@ namespace KAL0326_PJP_Project
             if (string.IsNullOrWhiteSpace(inputPath) || !File.Exists(inputPath))
             {
                 Console.WriteLine("Soubor neexistuje.");
-
                 return;
             }
 
             string inputCode = File.ReadAllText(inputPath);
 
-            // Lexer a parser
             AntlrInputStream inputStream = new AntlrInputStream(inputCode);
             PLCLexer lexer = new PLCLexer(inputStream);
             CommonTokenStream tokenStream = new CommonTokenStream(lexer);
             PLCParser parser = new PLCParser(tokenStream);
 
-            // Zachytávání syntax chyb
             var errorListener = new CollectingSyntaxErrorListener();
             parser.RemoveErrorListeners();
             parser.AddErrorListener(errorListener);
 
-            // Parsování programu
             var tree = parser.program();
 
             if (errorListener.Errors.Count > 0)
@@ -52,16 +48,32 @@ namespace KAL0326_PJP_Project
             if (typeChecker.Errors.Count > 0)
             {
                 Console.WriteLine("Nalezeny typové chyby:");
-
                 foreach (var err in typeChecker.Errors)
                 {
                     Console.WriteLine(err);
                 }
-
                 return;
             }
 
             Console.WriteLine("Program prošel typovou kontrolou.");
+
+            var codeGenerator = new CodeGenerator();
+            codeGenerator.Visit(tree);
+
+            string outputPath = "output.asm";
+            codeGenerator.WriteToFile(outputPath);
+            Console.WriteLine($"Instrukce byly vygenerovány do souboru: {outputPath}");
+
+            Console.WriteLine("Zadej soubor s instrukcemi:");
+            string path = Console.ReadLine();
+            if (!File.Exists(path))
+            {
+                Console.WriteLine("Soubor neexistuje.");
+                return;
+            }
+
+            var interp = new Interpreter();
+            interp.Run(path);
         }
     }
 }
