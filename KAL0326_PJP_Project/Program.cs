@@ -1,6 +1,7 @@
 ﻿using Antlr4.Runtime;
 using System;
 using System.IO;
+using System.Runtime.Serialization;
 
 namespace KAL0326_PJP_Project
 {
@@ -65,14 +66,18 @@ namespace KAL0326_PJP_Project
             Console.WriteLine($"Instrukce byly vygenerovány do souboru: {outputPath}");
 
             Console.WriteLine("Zadej soubor s instrukcemi:");
+
             string path = Console.ReadLine();
+
             if (!File.Exists(path))
             {
                 Console.WriteLine("Soubor neexistuje.");
+
                 return;
             }
 
             var interp = new Interpreter();
+
             interp.Run(path);
         }
     }

@@ -68,6 +68,7 @@ public class CodeGenerator : PLCBaseVisitor<string>
                 "string" => "push S \"\"",
                 _ => null
             };
+
             if (defaultPush != null)
             {
                 Emit(defaultPush);
@@ -143,6 +144,37 @@ public class CodeGenerator : PLCBaseVisitor<string>
         return null;
     }
 
+    public override string VisitForStatement(PLCParser.ForStatementContext context)
+    {
+        string varType = context.TYPE().GetText();
+        string varName = context.ID().GetText();
+
+        symbolTable[varName] = varType;
+
+        Visit(context.expression(0));
+
+        Emit($"save {varName}");
+
+        int labelStart = GetNewLabel();
+        int labelEnd = GetNewLabel();
+
+        Emit($"label {labelStart}");
+
+        Visit(context.expression(1));
+        
+        Emit($"fjmp {labelEnd}");
+
+        Visit(context.statement());
+
+        Visit(context.expression(2));
+
+        Emit($"jmp {labelStart}");
+        Emit($"label {labelEnd}");
+
+        return null;
+    }
+
+
     public override string VisitWriteStatement(PLCParser.WriteStatementContext context)
     {
         int exprCount = context.expression().Length;
@@ -203,41 +235,7 @@ public class CodeGenerator : PLCBaseVisitor<string>
         return null;
     }
 
-    public override string VisitForStatement(PLCParser.ForStatementContext context)
-    {
-        string varType = context.TYPE().GetText();
-        string varName = context.ID().GetText();
-
-        symbolTable[varName] = varType;
-
-        Emit(varType switch
-        {
-            "int" => "push I 0",
-            "float" => "push F 0.0",
-            "bool" => "push B false",
-            "string" => "push S \"\"",
-            _ => throw new Exception("Unknown type")
-        });
-
-        Emit($"save {varName}");
-
-        int labelStart = GetNewLabel();
-        int labelEnd = GetNewLabel();
-
-        Emit($"label {labelStart}");
-
-        string condType = Visit(context.expression(0));
-        Emit($"fjmp {labelEnd}");
-
-        Visit(context.statement());
-
-        Visit(context.expression(1));
-
-        Emit($"jmp {labelStart}");
-        Emit($"label {labelEnd}");
-
-        return null;
-    }
+   
 
 
     public override string VisitPrimary(PLCParser.PrimaryContext context)
@@ -405,9 +403,6 @@ public class CodeGenerator : PLCBaseVisitor<string>
 
         return "bool";
     }
-
-
-
 
     public override string VisitEquality(PLCParser.EqualityContext context)
     {

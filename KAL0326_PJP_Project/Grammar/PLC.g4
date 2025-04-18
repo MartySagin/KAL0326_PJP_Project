@@ -82,7 +82,7 @@ whileStatement
     : WHILE LPAREN expression RPAREN statement ;
 
 forStatement
-    : FOR LPAREN TYPE ID SEMI expression SEMI expression RPAREN statement ;
+    : FOR LPAREN TYPE ID ASSIGN expression SEMI expression SEMI expression RPAREN statement ;
 
 expression
     : assignment ;

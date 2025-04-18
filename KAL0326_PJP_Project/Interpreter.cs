@@ -6,7 +6,7 @@ public class Interpreter
 {
     private readonly List<string> instructions = new();
     private readonly Dictionary<string, object> variables = new();
-    private readonly Dictionary<int, int> labels = new();  // label -> line index
+    private readonly Dictionary<int, int> labels = new();  
     private readonly Stack<object> stack = new();
 
     public void Run(string filePath)
@@ -36,9 +36,6 @@ public class Interpreter
         }
     }
 
-    /// <summary>
-    /// Najde všechny řádky typu "label N" a uloží do slovníku labels[N] = lineIndex
-    /// </summary>
     private void PreprocessLabels()
     {
         for (int i = 0; i < instructions.Count; i++)
@@ -56,10 +53,7 @@ public class Interpreter
         }
     }
 
-    /// <summary>
-    /// Provede jednu instrukci (příkaz) a případně upraví ip (pokud jde o skok).
-    /// Vrátí true, pokud se provedl skok (tj. volající nesmí dělat ip++).
-    /// </summary>
+ 
     private bool ExecuteInstruction(string line, ref int ip)
     {
 
@@ -93,11 +87,13 @@ public class Interpreter
                 if (parts.Length > 1 && int.TryParse(parts[1], out int fjmpLabel))
                 {
                     bool cond = PopBool();
+
                     if (cond == false)
                     {
                         if (labels.TryGetValue(fjmpLabel, out int lineIndex))
                         {
                             ip = lineIndex;
+
                             return true;
                         }
                     }

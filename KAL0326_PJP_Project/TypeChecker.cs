@@ -249,12 +249,14 @@ public class TypeChecker : PLCBaseVisitor<string>
 
         symbolTable[name] = type;
 
-        string condType = Visit(context.expression(0));
+        Visit(context.expression(0));
+
+        string condType = Visit(context.expression(1));
 
         if (condType != "bool")
             Errors.Add($"[Line {context.Start.Line}] Condition in 'for' must be of type bool, got '{condType}'.");
 
-        Visit(context.expression(1));
+        Visit(context.expression(2));
 
         Visit(context.statement());
 
